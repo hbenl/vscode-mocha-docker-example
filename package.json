@@ -1,0 +1,19 @@
+{
+  "name": "vscode-mocha-docker-example",
+  "version": "0.1.0",
+  "description": "An example project for running mocha tests in a docker container using the Mocha Test Explorer for VS Code",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "vscode",
+    "mocha",
+    "docker"
+  ],
+  "author": "Holger Benl <hbenl@evandor.de>",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^6.1.4"
+  }
+}

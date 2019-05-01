@@ -1,0 +1,11 @@
+{
+  "files.exclude": {
+    "node_modules": true
+  },
+  "editor.insertSpaces": false,
+  "editor.tabSize": 4,
+  "[json]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
+  }
+}
