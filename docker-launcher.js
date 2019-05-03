@@ -3,11 +3,12 @@ const { readFileSync } = require('fs');
 const { mochaWorker, createConnection, writeMessage, readMessages } = require('vscode-test-adapter-remoting-util');
 
 // TODO:
-// support env
-// debugging
+// support env?
+// support workerArgs.logEnabled
 // error reporting (e.g. launcherScript doesn't exist, docker not running,...)
 // relay console messages from our child to our parent process
 // reload when docker-launcher.js changes
+// error recovery: call docker rm -f when we receive a signal
 
 const localPath = __dirname;
 const remotePath = '/home/node/workspace';
@@ -34,6 +35,13 @@ process.once('message', workerArgsJson => {
 	const workerArgs = mochaWorker.convertWorkerArgs(JSON.parse(workerArgsJson), localToRemote);
 	workerArgs.mochaPath = localToRemote(require.resolve('mocha'));
 
+	let nodeDebugArgs = [];
+	let dockerDebugArgs = [];
+	if (workerArgs.debuggerPort) {
+		nodeDebugArgs = [ `--inspect-brk=0.0.0.0:${workerArgs.debuggerPort}` ]
+		dockerDebugArgs = [ '-p', `${workerArgs.debuggerPort}:${workerArgs.debuggerPort}` ];
+	}
+
 	const childProcess = spawn(
 		'docker',
 		[
@@ -41,8 +49,11 @@ process.once('message', workerArgsJson => {
 			'-v', `${localPath}:${remotePath}`,
 			'-w', localToRemote(process.cwd()),
 			'-p', `${port}:${port}`,
+			...dockerDebugArgs,
 			'node:current-alpine',
-			'node', '-', `{"role":"server","port":${port}}`
+			'node',
+			...nodeDebugArgs,
+			'-', `{"role":"server","port":${port}}`
 		]
 	);
 
@@ -52,6 +63,7 @@ process.once('message', workerArgsJson => {
 	childProcess.stdin.write(readFileSync(workerArgs.workerScript), () => console.log('Sent worker'));
 	childProcess.stdin.end();
 
+	setTimeout(() =>
 	createConnection(port).then(socket => {
 
 		console.log('Connected');
@@ -66,5 +78,5 @@ process.once('message', workerArgsJson => {
 				process.send(mochaWorker.convertTestRunMessage(msg, remoteToLocal));
 			}
 		});
-	});
+	}), 2000);
 });
