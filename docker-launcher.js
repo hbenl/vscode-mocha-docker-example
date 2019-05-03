@@ -3,7 +3,7 @@ const { readFileSync } = require('fs');
 const { mochaWorker, createConnection, writeMessage, readMessages } = require('vscode-test-adapter-remoting-util');
 
 // TODO:
-// support cwd, env
+// support env
 // debugging
 // error reporting (e.g. launcherScript doesn't exist, docker not running,...)
 // relay console messages from our child to our parent process
@@ -39,7 +39,7 @@ process.once('message', workerArgsJson => {
 		[
 			'run', '--rm', '-i',
 			'-v', `${localPath}:${remotePath}`,
-			'-w', remotePath,
+			'-w', localToRemote(process.cwd()),
 			'-p', `${port}:${port}`,
 			'node:current-alpine',
 			'node', '-', `{"role":"server","port":${port}}`

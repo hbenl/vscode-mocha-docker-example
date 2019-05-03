@@ -8,5 +8,6 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 2
   },
-  "mochaExplorer.launcherScript": "docker-launcher.js"
+  "mochaExplorer.launcherScript": "docker-launcher.js",
+  "mochaExplorer.cwd": "test"
 }
