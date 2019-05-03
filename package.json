@@ -14,6 +14,7 @@
   "author": "Holger Benl <hbenl@evandor.de>",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "vscode-test-adapter-remoting-util": "^0.4.1"
   }
 }
