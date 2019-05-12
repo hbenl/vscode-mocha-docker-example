@@ -5,7 +5,6 @@ const { mochaWorker, createConnection, writeMessage, readMessages } = require('v
 // TODO:
 // support env?
 // error reporting (e.g. launcherScript doesn't exist, docker not running,...)
-// reload when docker-launcher.js changes
 // error recovery: call docker rm -f when we receive a signal
 
 const localWorkspace = __dirname;
@@ -30,9 +29,8 @@ process.once('message', workerArgsJson => {
 
 	const origWorkerArgs = JSON.parse(workerArgsJson);
 	const localWorker = origWorkerArgs.workerScript;
-	const logEnabled = origWorkerArgs.logEnabled;
 
-	if (logEnabled) process.send('Received workerArgs');
+	process.send('Received workerArgs');
 
 	const workerArgs = mochaWorker.convertWorkerArgs(origWorkerArgs, localToRemote);
 	workerArgs.mochaPath = localToRemote(origWorkerArgs.mochaPath);
@@ -46,7 +44,7 @@ process.once('message', workerArgsJson => {
 		rejectClosedSocket = 1500;
 	}
 
-	if (logEnabled) process.send('Starting worker process');
+	process.send('Starting worker process');
 
 	const childProcess = spawn(
 		'docker',
@@ -65,20 +63,18 @@ process.once('message', workerArgsJson => {
 		{ stdio: 'inherit' }
 	);
 
-	if (logEnabled) {
-		childProcess.on('error', err => process.send(`Error from worker process: ${inspect(err)}`));
-		childProcess.on('exit', (code, signal) => process.send(`Worker process exited with code ${code} and signal ${signal}`));
-	}
+	childProcess.on('error', err => process.send(`Error from worker process: ${inspect(err)}`));
+	childProcess.on('exit', (code, signal) => process.send(`Worker process exited with code ${code} and signal ${signal}`));
 
-	if (logEnabled) process.send('Connecting to worker process');
+	process.send('Connecting to worker process');
 
 	createConnection(port, { rejectClosedSocket }).then(socket => {
 
-		if (logEnabled) process.send('Connected');
+		process.send('Connected');
 
 		writeMessage(socket, workerArgs);
 
-		if (logEnabled) process.send('Sent workerArgs to worker process');
+		process.send('Sent workerArgs to worker process');
 
 		readMessages(socket, msg => {
 			if (workerArgs.action === 'loadTests') {
