@@ -1,9 +1,9 @@
 const { spawn } = require('child_process');
+const { inspect } = require('util');
 const { mochaWorker, createConnection, writeMessage, readMessages } = require('vscode-test-adapter-remoting-util');
 
 // TODO:
 // support env?
-// support workerArgs.logEnabled
 // error reporting (e.g. launcherScript doesn't exist, docker not running,...)
 // reload when docker-launcher.js changes
 // error recovery: call docker rm -f when we receive a signal
@@ -34,6 +34,9 @@ process.once('message', workerArgsJson => {
 
 	const origWorkerArgs = JSON.parse(workerArgsJson);
 	const localWorker = origWorkerArgs.workerScript;
+	const logEnabled = origWorkerArgs.logEnabled;
+
+	if (logEnabled) process.send('Received workerArgs');
 
 	const workerArgs = mochaWorker.convertWorkerArgs(origWorkerArgs, localToRemote);
 	workerArgs.mochaPath = localToRemote(require.resolve('mocha'));
@@ -46,6 +49,8 @@ process.once('message', workerArgsJson => {
 		dockerDebugArgs = [ '-p', `${workerArgs.debuggerPort}:${workerArgs.debuggerPort}` ];
 		rejectClosedSocket = 1500;
 	}
+
+	if (logEnabled) process.send('Starting worker process');
 
 	const childProcess = spawn(
 		'docker',
@@ -64,15 +69,20 @@ process.once('message', workerArgsJson => {
 		{ stdio: 'inherit' }
 	);
 
-	childProcess.on('error', err => console.log(err));
-	childProcess.on('exit', () => console.log('Exited'));
+	if (logEnabled) {
+		childProcess.on('error', err => process.send(`Error from worker process: ${inspect(err)}`));
+		childProcess.on('exit', (code, signal) => process.send(`Worker process exited with code ${code} and signal ${signal}`));
+	}
+
+	if (logEnabled) process.send('Connecting to worker process');
 
 	createConnection(port, { rejectClosedSocket }).then(socket => {
 
-		console.log('Connected');
+		if (logEnabled) process.send('Connected');
 
 		writeMessage(socket, workerArgs);
-		console.log('Sent workerArgs');
+
+		if (logEnabled) process.send('Sent workerArgs to worker process');
 
 		readMessages(socket, msg => {
 			if (workerArgs.action === 'loadTests') {
