@@ -3,8 +3,7 @@ const { inspect } = require('util');
 const { mochaWorker, createConnection, writeMessage, readMessages } = require('vscode-test-adapter-remoting-util');
 
 // TODO:
-// support env?
-// error reporting (e.g. launcherScript doesn't exist, docker not running,...)
+// always handle the exit option in the worker process
 // error recovery: call docker rm -f when we receive a signal
 
 const localWorkspace = __dirname;
@@ -64,7 +63,12 @@ process.once('message', workerArgsJson => {
 	);
 
 	childProcess.on('error', err => process.send(`Error from worker process: ${inspect(err)}`));
-	childProcess.on('exit', (code, signal) => process.send(`Worker process exited with code ${code} and signal ${signal}`));
+	childProcess.on('exit', (code, signal) => {
+		process.send(`Worker process exited with code ${code} and signal ${signal}`);
+		if ((workerArgs.action === 'loadTests') && (code || signal)) {
+			process.send({ type: 'finished', errorMessage: `The worker process finished with code ${code} and signal ${signal}.\nThe diagnostic log may contain more information, enable it with the "mochaExplorer.logpanel" or "mochaExplorer.logfile" settings.` });
+		}
+	});
 
 	process.send('Connecting to worker process');
 
