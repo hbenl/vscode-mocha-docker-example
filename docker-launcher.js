@@ -5,7 +5,6 @@ const { mochaWorker, createConnection, writeMessage, readMessages } = require('v
 // support env?
 // support workerArgs.logEnabled
 // error reporting (e.g. launcherScript doesn't exist, docker not running,...)
-// relay console messages from our child to our parent process
 // reload when docker-launcher.js changes
 // error recovery: call docker rm -f when we receive a signal
 
@@ -61,7 +60,8 @@ process.once('message', workerArgsJson => {
 			'node',
 			...nodeDebugArgs,
 			remoteWorker, `{"role":"server","port":${port}}`
-		]
+		],
+		{ stdio: 'inherit' }
 	);
 
 	childProcess.on('error', err => console.log(err));

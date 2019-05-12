@@ -6,7 +6,7 @@ describe("The launcher", function() {
         assert.strictEqual(process.cwd(), '/home/node/workspace/test');
     });
 
-    it("Another test", function() {
-
+    it("should forward console messages", function() {
+        console.log('A mocha test says hi!');
     });
 });
