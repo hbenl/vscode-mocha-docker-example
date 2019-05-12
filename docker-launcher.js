@@ -14,21 +14,17 @@ const remoteWorker = remoteHome + '/worker.js';
 const remoteWorkspace = remoteHome + '/workspace';
 const port = 8123;
 
-function remoteToLocal(path) {
-	if (path.startsWith(remoteWorkspace)) {
-		return localWorkspace + path.substring(remoteWorkspace.length)
-	} else {
-		return path;
+function convertPaths(srcPath, dstPath) {
+	return function(path) {
+		if (path.startsWith(srcPath)) {
+			return dstPath + path.substring(srcPath.length)
+		} else {
+			return path;
+		}
 	}
 }
-
-function localToRemote(path) {
-	if (path.startsWith(localWorkspace)) {
-		return remoteWorkspace + path.substring(localWorkspace.length)
-	} else {
-		return path;
-	}
-}
+const localToRemote = convertPaths(localWorkspace, remoteWorkspace);
+const remoteToLocal = convertPaths(remoteWorkspace, localWorkspace);
 
 process.once('message', workerArgsJson => {
 
