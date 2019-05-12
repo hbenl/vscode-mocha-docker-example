@@ -41,9 +41,11 @@ process.once('message', workerArgsJson => {
 
 	let nodeDebugArgs = [];
 	let dockerDebugArgs = [];
+	let rejectClosedSocket = undefined;
 	if (workerArgs.debuggerPort) {
 		nodeDebugArgs = [ `--inspect-brk=0.0.0.0:${workerArgs.debuggerPort}` ]
 		dockerDebugArgs = [ '-p', `${workerArgs.debuggerPort}:${workerArgs.debuggerPort}` ];
+		rejectClosedSocket = 1500;
 	}
 
 	const childProcess = spawn(
@@ -65,8 +67,7 @@ process.once('message', workerArgsJson => {
 	childProcess.on('error', err => console.log(err));
 	childProcess.on('exit', () => console.log('Exited'));
 
-	setTimeout(() =>
-	createConnection(port).then(socket => {
+	createConnection(port, { rejectClosedSocket }).then(socket => {
 
 		console.log('Connected');
 
@@ -80,5 +81,5 @@ process.once('message', workerArgsJson => {
 				process.send(mochaWorker.convertTestRunMessage(msg, remoteToLocal));
 			}
 		});
-	}), 2000);
+	});
 });
