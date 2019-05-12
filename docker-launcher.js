@@ -35,7 +35,7 @@ process.once('message', workerArgsJson => {
 	if (logEnabled) process.send('Received workerArgs');
 
 	const workerArgs = mochaWorker.convertWorkerArgs(origWorkerArgs, localToRemote);
-	workerArgs.mochaPath = localToRemote(require.resolve('mocha'));
+	workerArgs.mochaPath = localToRemote(origWorkerArgs.mochaPath);
 
 	let nodeDebugArgs = [];
 	let dockerDebugArgs = [];

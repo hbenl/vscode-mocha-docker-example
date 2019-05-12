@@ -10,5 +10,6 @@
   },
   "mochaExplorer.launcherScript": "docker-launcher.js",
   "mochaExplorer.cwd": "test",
-  "mochaExplorer.debuggerConfig": "Debug in Docker"
+  "mochaExplorer.debuggerConfig": "Debug in Docker",
+  "mochaExplorer.mochaPath": "node_modules/mocha"
 }
