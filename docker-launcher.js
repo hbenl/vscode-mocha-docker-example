@@ -61,6 +61,9 @@ process.once('message', async origWorkerArgs => {
 			// optionally expose the node debugger port
 			...dockerDebugArgs,
 
+			// set the hostname of the docker container (used in one of the tests to check if it is running in the container)
+			'-h', 'mocha-container',
+
 			// the container image to use
 			'node:current-alpine',
 

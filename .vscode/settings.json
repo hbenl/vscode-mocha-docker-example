@@ -9,7 +9,8 @@
     "editor.tabSize": 2
   },
   "mochaExplorer.launcherScript": "docker-launcher.js",
-  "mochaExplorer.cwd": "test",
+  "mochaExplorer.mochaPath": "node_modules/mocha",
   "mochaExplorer.debuggerConfig": "Debug in Docker",
-  "mochaExplorer.mochaPath": "node_modules/mocha"
+  "mochaExplorer.env": { "TEST_ENVVAR": "TEST_VALUE" },
+  "mochaExplorer.require": [ "required.js" ],
 }
