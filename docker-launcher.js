@@ -31,11 +31,11 @@ process.once('message', async origWorkerArgs => {
 	// and to docker to expose the debugger port
 	let nodeDebugArgs = [];
 	let dockerDebugArgs = [];
-	let rejectClosedSocket = undefined;
+	let delay = undefined;
 	if (workerArgs.debuggerPort) {
 		nodeDebugArgs = [ `--inspect-brk=0.0.0.0:${workerArgs.debuggerPort}` ]
 		dockerDebugArgs = [ '-p', `${workerArgs.debuggerPort}:${workerArgs.debuggerPort}` ];
-		rejectClosedSocket = 1500;
+		delay = 2000;
 	}
 
 	// start a child process that will run the worker script in a docker container
@@ -96,9 +96,14 @@ process.once('message', async origWorkerArgs => {
 		}
 	});
 
+	if (delay) {
+		// this delay is necessary when the node debugger is enabled...
+		await new Promise(resolve => setTimeout(resolve, delay));
+	}
+
 	// establish the TCP/IP connection to the worker
 	log('Connecting to worker process');
-	const socket = await createConnection(port, { rejectClosedSocket });
+	const socket = await createConnection(port);
 
 	// forward the `WorkerArgs` that we received earlier from Mocha Test Explorer to the worker
 	log('Sending workerArgs to worker process');
