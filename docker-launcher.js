@@ -52,9 +52,6 @@ process.once('message', async origWorkerArgs => {
 			// bind-mount the worker script into the container
 			'-v', `${origWorkerArgs.workerScript}:${remoteWorker}`,
 
-			// set the working directory for the worker script and mocha
-			'-w', localToRemotePath(process.cwd()),
-
 			// expose the port for the worker protocol
 			'-p', `${port}:${port}`,
 
