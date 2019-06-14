@@ -15,6 +15,6 @@
   "license": "MIT",
   "devDependencies": {
     "mocha": "^6.1.4",
-    "vscode-test-adapter-remoting-util": "^0.8.0"
+    "vscode-test-adapter-remoting-util": "^0.8.1"
   }
 }
