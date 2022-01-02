@@ -8,9 +8,12 @@
     "editor.insertSpaces": true,
     "editor.tabSize": 2
   },
-  "mochaExplorer.launcherScript": "docker-launcher.js",
-  "mochaExplorer.mochaPath": "node_modules/mocha",
-  "mochaExplorer.debuggerConfig": "Debug in Docker",
-  "mochaExplorer.env": { "TEST_ENVVAR": "TEST_VALUE" },
+  "mochaExplorer.launcherScript": "node_modules/mocha-explorer-launcher-scripts/docker",
+  "mochaExplorer.env": {
+    "DOCKER_IMAGE": "node:current-alpine",
+    "DOCKER_EXTRA_ARGS": "[\"-h\",\"mocha-container\"]",
+    "TEST_ENVVAR": "TEST_VALUE"
+  },
   "mochaExplorer.require": [ "required.js" ],
+  "mochaExplorer.debuggerConfig": "Debug in Docker",
 }

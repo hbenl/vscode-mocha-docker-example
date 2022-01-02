@@ -4,7 +4,7 @@ const assert = require('assert');
 describe("Tests run remotely", function() {
 
 	it("should really run in the docker container", function() {
-		// change 'host' to the hostname for your remote machine
+		// the hostname is set using the DOCKER_EXTRA_ARGS
 		assert.strictEqual(os.hostname(), 'mocha-container');
 	});
 
